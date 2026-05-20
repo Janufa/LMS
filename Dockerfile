@@ -18,6 +18,9 @@ COPY . /app
 RUN adduser --disabled-password --gecos "" appuser || true
 RUN chown -R appuser:appuser /app
 
+# Ensure entrypoint is executable
+RUN chmod +x /app/entrypoint.sh
+
 USER appuser
 
 RUN mkdir -p /app/staticfiles
