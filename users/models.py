@@ -4,11 +4,16 @@ from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
+    ADMIN = 'admin'
+    TEACHER = 'teacher'
+    STUDENT = 'student'
+    PARENT = 'parent'
+
     ROLE_CHOICES = (
-        ('admin', _('Admin')),
-        ('teacher', _('Teacher')),
-        ('student', _('Student')),
-        ('parent', _('Parent')),
+        (ADMIN, _('Admin')),
+        (TEACHER, _('Teacher')),
+        (STUDENT, _('Student')),
+        (PARENT, _('Parent')),
     )
     
     role = models.CharField(

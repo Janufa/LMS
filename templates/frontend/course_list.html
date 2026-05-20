@@ -1,0 +1,29 @@
+{% extends 'frontend/base.html' %}
+{% block title %}Courses — Acadify Portal{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Courses</h2>
+  {% if user.role == 'teacher' %}
+    <a class="btn btn-success" href="{% url 'course_create' %}">Create Course</a>
+  {% endif %}
+</div>
+<div class="row gy-3">
+  {% for course in courses %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ course.title }}</h5>
+          <p class="card-text">{{ course.description|truncatechars:120 }}</p>
+          <p class="mb-1"><strong>Code:</strong> {{ course.code }}</p>
+          <p class="mb-1"><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+          <a href="{% url 'course_detail' course.pk %}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="alert alert-secondary">No active courses are available right now.</div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

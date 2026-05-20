@@ -1,0 +1,37 @@
+{% extends 'frontend/base.html' %}
+{% block title %}{{ course.title }} — Acadify Portal{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h3>{{ course.title }}</h3>
+        <p class="text-muted mb-1">{{ course.code }}</p>
+        <p>{{ course.description }}</p>
+        <p><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+        <p><strong>Credits:</strong> {{ course.credits }}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        {% if enrolled %}
+          <div class="alert alert-success">You are enrolled in this course.</div>
+          <a href="{% url 'course_unenroll' course.pk %}" class="btn btn-outline-danger">Unenroll</a>
+        {% else %}
+          <a href="{% url 'course_enroll' course.pk %}" class="btn btn-primary">Enroll in course</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5>Course Stats</h5>
+        <p><strong>Active students:</strong> {{ course.enrollments.filter(status='active').count }}</p>
+        <p><strong>Start:</strong> {{ course.start_date }}</p>
+        <p><strong>End:</strong> {{ course.end_date }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

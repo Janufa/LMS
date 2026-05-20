@@ -1,0 +1,25 @@
+{% extends 'frontend/base.html' %}
+{% block title %}Profile — Acadify Portal{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title mb-4">Profile</h3>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Username</dt>
+          <dd class="col-sm-8">{{ user.username }}</dd>
+          <dt class="col-sm-4">Name</dt>
+          <dd class="col-sm-8">{{ user.get_full_name }}</dd>
+          <dt class="col-sm-4">Email</dt>
+          <dd class="col-sm-8">{{ user.email }}</dd>
+          <dt class="col-sm-4">Role</dt>
+          <dd class="col-sm-8">{{ user.role|title }}</dd>
+          <dt class="col-sm-4">Student ID</dt>
+          <dd class="col-sm-8">{{ user.student_id|default:'N/A' }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

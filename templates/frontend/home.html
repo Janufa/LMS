@@ -1,0 +1,152 @@
+{% extends 'frontend/base.html' %}
+{% block title %}Home — Acadify Portal{% endblock %}
+{% block content %}
+<div class="hero-panel mb-4">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <h1 class="mb-3">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+      <p class="text-muted">Your Acadify dashboard gives you fast access to courses, attendance, announcements, and assignments.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <a class="btn btn-primary btn-lg" href="{% url 'course_list' %}">Browse courses</a>
+    </div>
+  </div>
+</div>
+<div class="row g-4 mb-4">
+  {% if user.role == 'teacher' %}
+    <div class="col-md-6">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Courses taught</h5>
+        <p class="display-6 mb-0">{{ course_count }}</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Active students</h5>
+        <p class="display-6 mb-0">{{ student_count }}</p>
+      </div>
+    </div>
+  {% elif user.role == 'parent' %}
+    <div class="col-12">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Children linked</h5>
+        {% if children %}
+          <ul class="list-group list-group-flush mt-3">
+            {% for child in children %}
+              <li class="list-group-item">{{ child.student.get_full_name|default:child.student.username }} — {{ child.relationship|title }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="mb-0 text-muted">No children linked to your account yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  {% elif user.role == 'admin' %}
+    <div class="col-md-4">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Total users</h5>
+        <p class="display-6 mb-0">{{ admin_stats.user_count }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Total courses</h5>
+        <p class="display-6 mb-0">{{ admin_stats.course_count }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Active enrollments</h5>
+        <p class="display-6 mb-0">{{ admin_stats.active_enrollments }}</p>
+      </div>
+    </div>
+  {% else %}
+    <div class="col-md-6">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Active Courses</h5>
+        <p class="display-6 mb-0">{{ active_courses.count }}</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Attendance records</h5>
+        <p class="display-6 mb-0">{{ recent_attendance.count }}</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% if user.role == 'student' %}
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Monthly performance</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <span class="d-block text-muted">Attendance rate</span>
+              <h2 class="mt-2">{{ monthly_performance.attendance_rate|default:'--' }}{% if monthly_performance.attendance_rate %}%{% endif %}</h2>
+            </div>
+            <ul class="list-unstyled text-muted small">
+              <li><strong>{{ monthly_performance.present_count }}</strong> Present</li>
+              <li><strong>{{ monthly_performance.late_count }}</strong> Late</li>
+              <li><strong>{{ monthly_performance.absent_count }}</strong> Absent</li>
+              <li><strong>{{ monthly_performance.excused_count }}</strong> Excused</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <span class="d-block text-muted">Average assignment grade</span>
+              <h2 class="mt-2">{{ monthly_performance.average_grade|default:'--' }}{% if monthly_performance.average_grade %}%{% endif %}</h2>
+            </div>
+            <p class="text-muted small mb-0">Graded submissions this month: <strong>{{ monthly_performance.graded_submissions }}</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card dashboard-card p-4">
+        <h5 class="section-title">Focus areas</h5>
+        <p class="mb-2 text-muted">Use the month summary to improve your learning routine.</p>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Keep attendance above 90%</li>
+          <li class="list-group-item">Submit assignments on time</li>
+          <li class="list-group-item">Check announcements weekly</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card dashboard-card p-4">
+      <h5 class="section-title">Recent updates</h5>
+      {% if recent_announcements %}
+        <ul class="list-group list-group-flush">
+          {% for announcement in recent_announcements %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <strong>{{ announcement.title }}</strong>
+                <p class="mb-1 text-muted">{{ announcement.content|truncatechars:120 }}</p>
+              </div>
+              <span class="text-muted small">{{ announcement.created_at|date:'M d, Y' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="mb-0 text-muted">No announcements available yet.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card dashboard-card p-4">
+      <h5 class="section-title">Quick actions</h5>
+      <div class="d-grid gap-3">
+        <a class="btn btn-outline-primary" href="{% url 'course_list' %}">View courses</a>
+        <a class="btn btn-outline-primary" href="{% url 'attendance' %}">Mark attendance</a>
+        <a class="btn btn-outline-primary" href="{% url 'announcements' %}">Read announcements</a>
+        <a class="btn btn-outline-primary" href="{% url 'assignment_list' %}">Open assignments</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

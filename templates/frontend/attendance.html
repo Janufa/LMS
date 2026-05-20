@@ -1,0 +1,160 @@
+{% extends 'frontend/base.html' %}
+{% block title %}Attendance — Acadify Portal{% endblock %}
+{% block content %}
+{% if teacher_courses is defined %}
+  <div class="row gy-4">
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Mark student attendance</h3>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+              </div>
+            {% endfor %}
+            <button class="btn btn-primary" type="submit">Save attendance</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Your courses</h3>
+          {% if teacher_courses %}
+            <ul class="list-group list-group-flush">
+              {% for course in teacher_courses %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{{ course.title }}</span>
+                  <a href="?course={{ course.id }}" class="btn btn-sm btn-outline-primary">Select</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No active courses assigned.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Today’s student attendance</h3>
+          {% if selected_course %}
+            <p class="text-muted">Course: <strong>{{ selected_course.title }}</strong> • Date: {{ today }}</p>
+            {% if attendance_rows %}
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Status</th>
+                      <th>Late message</th>
+                      <th>Proof</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in attendance_rows %}
+                      <tr>
+                        <td>{{ row.student.get_full_name|default:row.student.username }}</td>
+                        <td>
+                          {% if row.record %}
+                            <span class="badge bg-success">{{ row.record.get_status_display }}</span>
+                          {% else %}
+                            <span class="badge bg-secondary">Not marked</span>
+                          {% endif %}
+                        </td>
+                        <td>{% if row.record %}{{ row.record.late_message|default:'-' }}{% else %}-{% endif %}</td>
+                        <td>
+                          {% if row.record and row.record.late_photo %}
+                            <a href="{{ row.record.late_photo.url }}" target="_blank">View</a>
+                          {% else %}
+                            -
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="mb-0 text-muted">No active students enrolled in this course.</p>
+            {% endif %}
+          {% else %}
+            <p class="mb-0 text-muted">Select a course to see attendance for enrolled students.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">Recent attendance records</h3>
+          {% if teacher_history %}
+            <ul class="list-group list-group-flush">
+              {% for record in teacher_history %}
+                <li class="list-group-item">
+                  <strong>{{ record.student.get_full_name|default:record.student.username }}</strong> • {{ record.course.title }}<br>
+                  <small class="text-muted">{{ record.date }} • {{ record.get_status_display }}</small>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No attendance records yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Mark Attendance</h3>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+              </div>
+            {% endfor %}
+            <button class="btn btn-primary" type="submit">Save attendance</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">Recent Attendance</h3>
+          {% if history %}
+            <ul class="list-group list-group-flush">
+              {% for record in history %}
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong>{{ record.course.title }}</strong><br />
+                      {{ record.date }}
+                    </div>
+                    <span class="badge bg-{{ record.status|lower }}">{{ record.get_status_display }}</span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0">You have not recorded attendance yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

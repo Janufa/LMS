@@ -1,0 +1,105 @@
+{% extends 'frontend/base.html' %}
+{% block title %}Assignments — Acadify Portal{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <h2>Assignments</h2>
+    {% if assignment_items %}
+      <div class="list-group mb-4">
+        {% for item in assignment_items %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5>{{ item.assignment.title }}</h5>
+                <p class="mb-1">{{ item.assignment.description|truncatechars:150 }}</p>
+                <small class="text-muted">Due: {{ item.assignment.due_date }}</small>
+              </div>
+              {% if item.submission %}
+                <span class="badge bg-success">Submitted</span>
+              {% else %}
+                <span class="badge bg-secondary">Not submitted</span>
+              {% endif %}
+            </div>
+            {% if item.submission %}
+              <div class="mt-3 small text-muted">
+                Status: {{ item.submission.get_status_display }}<br>
+                Marks: {{ item.submission.marks_obtained|default:'Pending' }}<br>
+                {% if item.submission.feedback %}Feedback: {{ item.submission.feedback }}<br>{% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-secondary">No active assignments found.</div>
+    {% endif %}
+  </div>
+  <div class="col-lg-4">
+    {% if submission_form %}
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Submit Assignment</h5>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ submission_form.non_field_errors }}
+            {% for field in submission_form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+              </div>
+            {% endfor %}
+            <button class="btn btn-primary w-100" type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if submissions %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Recent Submissions</h5>
+          <ul class="list-group list-group-flush">
+            {% for submission in submissions %}
+              <li class="list-group-item">
+                <strong>{{ submission.assignment.title }}</strong><br>
+                <small class="text-muted">Submitted {{ submission.submission_date|date:'M d, Y H:i' }}</small>
+                <div class="small mt-1">Status: {{ submission.get_status_display }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if teacher_submissions %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Student Submissions</h5>
+          {% if teacher_submissions %}
+            <ul class="list-group list-group-flush">
+              {% for submission in teacher_submissions %}
+                <li class="list-group-item">
+                  <strong>{{ submission.assignment.title }}</strong><br>
+                  Student: {{ submission.student.get_full_name|default:submission.student.username }}<br>
+                  <small class="text-muted">{{ submission.submission_date|date:'M d, Y H:i' }}</small>
+                  <div class="small mt-1">Status: {{ submission.get_status_display }}</div>
+                  {% if submission.late_message %}
+                    <div class="mt-1"><strong>Late note:</strong> {{ submission.late_message }}</div>
+                  {% endif %}
+                  {% if submission.submission_file %}
+                    <div class="mt-1"><a href="{{ submission.submission_file.url }}" target="_blank">View file</a></div>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No student submissions yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
