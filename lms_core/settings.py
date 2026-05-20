@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'quizzes.apps.QuizzesConfig',
     'announcements.apps.AnnouncementsConfig',
     'attendance.apps.AttendanceConfig',
+    'frontend.apps.FrontendConfig',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +118,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Authentication redirects
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
