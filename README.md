@@ -86,6 +86,29 @@ python manage.py runserver
 
 The server will be available at `http://localhost:8000`
 
+## Deployment
+
+This app is ready for deployment on a Python web host such as Render or Heroku.
+
+### Render Setup
+1. Connect the GitHub repo `Janufa/LMS`
+2. Set the root directory to `lms`
+3. Build command:
+```bash
+pip install -r requirements.txt && python manage.py collectstatic --noinput
+```
+4. Start command:
+```bash
+gunicorn lms_core.wsgi --log-file -
+```
+5. Environment variables:
+   - `DEBUG=False`
+   - `SECRET_KEY=<your-production-secret>`
+   - `ALLOWED_HOSTS=<your-app-domain>`
+   - `CSRF_TRUSTED_ORIGINS=https://<your-app-domain>`
+   - `DATABASE_URL=postgres://user:password@hostname:5432/dbname`
+   - `DATABASE_SSL_REQUIRE=True`
+
 ## Usage
 
 ### Access Points
